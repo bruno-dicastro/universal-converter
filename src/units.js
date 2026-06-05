@@ -483,11 +483,19 @@ export const units = [
     factor: 604800.0
   },
   {
+    id: 'mes',
+    symbol: 'mês',
+    category: 'time',
+    system: 'standard',
+    rank: 7,
+    factor: 2628000.0 // 365/12 days
+  },
+  {
     id: 'ano',
     symbol: 'ano',
     category: 'time',
     system: 'standard',
-    rank: 7,
+    rank: 8,
     factor: 31536000.0 // 365 days
   }
 ];

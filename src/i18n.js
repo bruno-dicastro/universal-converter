@@ -73,11 +73,13 @@ export const translations = {
       h: 'Hora',
       d: 'Dia',
       sem: 'Semana',
+      mes: 'Mês',
       ano: 'Ano'
     },
     symbols: {
       cup: 'xícara',
       sem: 'sem',
+      mes: 'mês',
       ano: 'ano'
     }
   },
@@ -155,11 +157,13 @@ export const translations = {
       h: 'Hour',
       d: 'Day',
       sem: 'Week',
+      mes: 'Month',
       ano: 'Year'
     },
     symbols: {
       cup: 'cup',
       sem: 'wk',
+      mes: 'mo',
       ano: 'yr'
     }
   },
@@ -237,11 +241,13 @@ export const translations = {
       h: 'Heure',
       d: 'Jour',
       sem: 'Semaine',
+      mes: 'Mois',
       ano: 'An'
     },
     symbols: {
       cup: 'tasse',
       sem: 'sem',
+      mes: 'mois',
       ano: 'an'
     }
   }
