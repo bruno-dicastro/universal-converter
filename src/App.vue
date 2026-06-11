@@ -46,11 +46,11 @@ watch([currentLang, decimalPlaces], () => {
 
 // Application state
 const valA = ref(formatVal(1));
-const valB = ref(formatVal(3.28084));
+const valB = ref(formatVal(0.3937007874));
 
-// Default units initially: Meter (m) and Feet (ft)
-const unitA = ref(units.find(u => u.id === 'm'));
-const unitB = ref(units.find(u => u.id === 'ft'));
+// Default units initially: Centimeter (cm) and Inch (in)
+const unitA = ref(units.find(u => u.id === 'cm'));
+const unitB = ref(units.find(u => u.id === 'in'));
 
 // Tracks which field was last edited to act as the source of truth for conversions
 const lastEdited = ref('A');
