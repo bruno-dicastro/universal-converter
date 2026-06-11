@@ -33,9 +33,17 @@ const getSymbol = (unit) => {
   return translations[lang].symbols?.[unit.id] || unit.symbol;
 };
 
+// Re-format values when language changes
+watch(currentLang, () => {
+  const numA = parseLocaleNumber(valA.value);
+  const numB = parseLocaleNumber(valB.value);
+  if (!isNaN(numA)) valA.value = formatVal(numA);
+  if (!isNaN(numB)) valB.value = formatVal(numB);
+});
+
 // Application state
-const valA = ref(1);
-const valB = ref(3.28084);
+const valA = ref(formatVal(1));
+const valB = ref(formatVal(3.28084));
 
 // Default units initially: Meter (m) and Feet (ft)
 const unitA = ref(units.find(u => u.id === 'm'));
@@ -100,18 +108,47 @@ const filteredGroupedUnitsB = computed(() => {
 
 // Format numeric outputs nicely (standard decimals vs scientific notation)
 function formatVal(val) {
-  if (val === 0) return '0';
-  if (val === null || val === undefined || isNaN(val)) return '';
-  const absVal = Math.abs(val);
+  if (val === 0 || val === '0') return '0';
+  if (val === null || val === undefined || val === '') return '';
+  
+  const num = typeof val === 'number' ? val : parseLocaleNumber(val);
+  if (isNaN(num)) return '';
+  
+  const absVal = Math.abs(num);
   
   // Scientific notation for very large or very small scales
   if (absVal < 1e-5 || absVal >= 1e9) {
-    return val.toExponential(4);
+    return num.toExponential(4);
   }
   
-  // Round to max 6 decimals and strip trailing zeros
-  const formatted = val.toFixed(6);
-  return formatted.replace(/\.?0+$/, '');
+  // Use Intl.NumberFormat for locale-aware formatting with thousands separators
+  return new Intl.NumberFormat(currentLang.value, {
+    minimumFractionDigits: 0,
+    maximumFractionDigits: 6
+  }).format(num);
+}
+
+// Locale-aware parser to handle thousands separators and decimal marks
+function parseLocaleNumber(val) {
+  if (val === null || val === undefined || val === '') return NaN;
+  const str = val.toString().trim();
+  if (str === '') return NaN;
+
+  const formatter = new Intl.NumberFormat(currentLang.value);
+  const parts = formatter.formatToParts(1111.1);
+  const group = parts.find(p => p.type === 'group')?.value || '';
+  const decimal = parts.find(p => p.type === 'decimal')?.value || '.';
+  
+  // Escape group separator for regex (especially if it's a dot or space)
+  const escapedGroup = group.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+  // Support both normal space and non-breaking space for group separator
+  const regexGroup = new RegExp(escapedGroup || '\\s', 'g');
+  
+  const normalized = str
+    .replace(regexGroup, '')
+    .replace(decimal, '.');
+    
+  return parseFloat(normalized);
 }
 
 // Convert logic when value A is typed
@@ -120,7 +157,7 @@ function updateFromA() {
     valB.value = '';
     return;
   }
-  const num = parseFloat(valA.value);
+  const num = parseLocaleNumber(valA.value);
   if (isNaN(num)) {
     valB.value = '';
     return;
@@ -135,7 +172,7 @@ function updateFromB() {
     valA.value = '';
     return;
   }
-  const num = parseFloat(valB.value);
+  const num = parseLocaleNumber(valB.value);
   if (isNaN(num)) {
     valA.value = '';
     return;
@@ -182,10 +219,10 @@ const secondaryUnitsB = computed(() => {
 function getSecondaryValue(targetUnit, isColumnA) {
   let sourceVal, sourceUnit;
   if (isColumnA) {
-    sourceVal = parseFloat(valA.value);
+    sourceVal = parseLocaleNumber(valA.value);
     sourceUnit = unitA.value;
   } else {
-    sourceVal = parseFloat(valB.value);
+    sourceVal = parseLocaleNumber(valB.value);
     sourceUnit = unitB.value;
   }
   
@@ -329,12 +366,13 @@ onUnmounted(() => {
           <div class="input-wrapper">
             <span class="field-label">{{ t('labelValue') }}</span>
             <input 
-              type="number" 
+              type="text" 
+              inputmode="decimal"
               class="value-input" 
               :value="valA" 
               @input="handleInputA"
+              @blur="valA = formatVal(valA)"
               placeholder="0"
-              step="any"
             />
           </div>
           
@@ -424,12 +462,13 @@ onUnmounted(() => {
           <div class="input-wrapper">
             <span class="field-label">{{ t('labelValue') }}</span>
             <input 
-              type="number" 
+              type="text" 
+              inputmode="decimal"
               class="value-input" 
               :value="valB" 
               @input="handleInputB"
+              @blur="valB = formatVal(valB)"
               placeholder="0"
-              step="any"
             />
           </div>
           
