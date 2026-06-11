@@ -110,6 +110,36 @@ body {
   bottom: 24px;
   right: 24px;
   z-index: 5;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.precision-selector {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 11px;
+  color: var(--text-muted);
+  font-family: var(--font-outfit);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.precision-selector select {
+  background: transparent;
+  border: 1px solid var(--border-technical-light);
+  border-radius: 4px;
+  padding: 1px 2px;
+  font-size: 11px;
+  color: var(--text-dark);
+  cursor: pointer;
+}
+
+@media (max-width: 480px) {
+  .precision-selector span {
+    display: none; /* Hide label on very small screens to save space */
+  }
 }
 
 .lang-selector select {

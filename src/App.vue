@@ -8,6 +8,9 @@ const browserLang = navigator.language.split('-')[0];
 const defaultLang = translations[browserLang] ? browserLang : 'en';
 const currentLang = ref(defaultLang);
 
+// Precision state
+const decimalPlaces = ref(2);
+
 // Helper for translations
 const t = (key) => {
   const keys = key.split('.');
@@ -33,8 +36,8 @@ const getSymbol = (unit) => {
   return translations[lang].symbols?.[unit.id] || unit.symbol;
 };
 
-// Re-format values when language changes
-watch(currentLang, () => {
+// Re-format values when language or precision changes
+watch([currentLang, decimalPlaces], () => {
   const numA = parseLocaleNumber(valA.value);
   const numB = parseLocaleNumber(valB.value);
   if (!isNaN(numA)) valA.value = formatVal(numA);
@@ -124,7 +127,7 @@ function formatVal(val) {
   // Use Intl.NumberFormat for locale-aware formatting with thousands separators
   return new Intl.NumberFormat(currentLang.value, {
     minimumFractionDigits: 0,
-    maximumFractionDigits: 6
+    maximumFractionDigits: decimalPlaces.value
   }).format(num);
 }
 
@@ -536,6 +539,12 @@ onUnmounted(() => {
     </footer>
 
     <div class="lang-selector">
+      <div class="precision-selector">
+        <span>{{ currentLang === 'pt' ? 'Decimais:' : (currentLang === 'fr' ? 'Décimales:' : 'Decimals:') }}</span>
+        <select v-model.number="decimalPlaces">
+          <option v-for="n in 11" :key="n-1" :value="n-1">{{ n-1 }}</option>
+        </select>
+      </div>
       <select v-model="currentLang">
         <option value="pt">PT</option>
         <option value="en">EN</option>
